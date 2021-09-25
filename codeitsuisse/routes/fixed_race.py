@@ -29,7 +29,7 @@ def minutely_req ():
 	global counting
 
 	result = []
-	data = request.data(as_text=True)
+	data = request.get_data(as_text=True)
 	logging.info("data sent for evaluation {}".format(data))
 
 	racers = data.split(",")
