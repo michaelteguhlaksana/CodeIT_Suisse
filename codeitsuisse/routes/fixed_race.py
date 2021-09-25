@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 #Edit starts
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
+import atexit
 
 def counter(racers, counting):
 	logging.info("Counting...")
@@ -25,10 +26,12 @@ def check_start():
 		return False
 	return True
 
+counting = {}
 
+def minutely_req ():
+	global counting
 
-def minutely_req (counting):
-
+	result = []
 	data = request.data(as_text=True)
 	logging.info("data sent for evaluation {}".format(data))
 
@@ -36,39 +39,35 @@ def minutely_req (counting):
 	counter(racers, counting)
 
 	counting = {k: v for k, v in sorted(counting.items(), key=lambda item: item[1])}
-	result = ""
-	for i in range(9):
-		result  = result + counting.keys()[i] + ','
-
-	result = result + counting.keys()[9]
-
-	logging.info("My result :{}".format(result))
-	return json.dumps(result)
-
-
+	result.append(counting.keys()[:10])
+	return result
 
 
 @app.route('/fixedrace', methods=['POST'])
 def evaluate():
-	sched = BackgroundScheduler(daemon=True)
-	sched.add_job(minutely_req,'interval',minutes=60)
+	global counting
 
-	while check_start():
-		pass
+	result = minutely_req(counting)
 
-	now = datetime.today()
-	now_hour = now.hour
-
-	sched.start()
-
-	if now_hour > datetime.today:
-		counting = {}
 	
+	for res in result[:9]:
+	results  = results + res + ','
+
+	results = results + result[9]
+
+	return results
 
 
+sched = BackgroundScheduler(daemon=True)
+sched.add_job(evaluate,'interval',seconds=60)
+
+while check_start():
+	pass
+
+sched.start()
 
 
-
+atexit.register(lambda: sched.shutdown(wait=False))
 
 
 	
