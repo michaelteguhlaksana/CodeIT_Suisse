@@ -7,86 +7,87 @@ from codeitsuisse import app
 
 logger = logging.getLogger(__name__)
 
-x_counter = 0
-
-def check_position (room, nc, nr, result, new_room, times, t):
-	for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1)):
-		if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and room[adj_r][adj_c] == 1:
-			new_room[adj_r][adj_c] = 3
-			times[adj_r][adj_c] = t + 1
-			result.append((adj_r, adj_c))
-	return result, new_room, times
-
-
-def check_positionB (room, nc, nr, result, new_room, times, t):
-	for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1), (nr-1, nc-1), (nr+1, nc-1), (nr+1, nc+1), (nr-1, nc+1)):
-		if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and room[adj_r][adj_c] == 1:
-			new_room[adj_r][adj_c] = 3
-			times[adj_r][adj_c] = t + 1
-			result.append((adj_r, adj_c))
-	return result, new_room, times
-
-def check_positionX (room, nc, nr, result, new_room, times, t):
-	for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1)):
-		if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and (room[adj_r][adj_c] == 1 or room[adj_r][adj_c] == 0) :
-			new_room[adj_r][adj_c] = 3
-			if room[adj_r][adj_c] == 0:
-				times[adj_r][adj_c] = t + 1
-			result.append((adj_r, adj_c))
-	return result, new_room, times
-
-def first_get_all_edge_source(room, times, t, check_position = check_position):
-	new_room = room
-	result = []
-	for nr, r in enumerate(room):
-		for nc, c in enumerate(r):
-			if c == 3:
-				result, new_room, times = check_position (room, nc, nr, result, new_room, times, t)
-				return result, new_room, times
-
-
-def step_once (room, to_check, times, t, check_position = check_position):
-	new_to_check = []
-	for nr, nc  in to_check:
-		new_to_check, new_room, times = check_position (room, nc, nr, new_to_check, new_room, times, t)
-	return new_to_check, new_room, times
-
-
-
-def check_room(room, check_position_funct):
-	times = [[0] * len(room[0]) ] * len(room)
-	t = 0
-
-	to_check, new_room = first_get_all_edge_source(room, times, t, check_position_funct)
-
-	while to_check != []:
-		new_to_check, new_room, times =  step_once(room, to_check, times, t, check_position_funct)
-		t += 1
-
-	return new_room, times
-
-def get_interest_time (times, nr, nc):
-	result = times[nr][nc]
-
-	if result == 0:
-		return -1
-	return result
-
-def get_maxi_time (times, final_room):
-	maxi = 0
-	for row in final_room:
-		if 1 in row:
-			return -1
-
-	for row in times:
-		maxi = max(maxi, max(row))
-
-	return maxi
 
 
 
 @app.route('/parasite', methods=['POST'])
 def evaluate():
+	x_counter = 0
+
+	def check_position (room, nc, nr, result, new_room, times, t):
+		for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1)):
+			if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and room[adj_r][adj_c] == 1:
+				new_room[adj_r][adj_c] = 3
+				times[adj_r][adj_c] = t + 1
+				result.append((adj_r, adj_c))
+		return result, new_room, times
+
+
+	def check_positionB (room, nc, nr, result, new_room, times, t):
+		for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1), (nr-1, nc-1), (nr+1, nc-1), (nr+1, nc+1), (nr-1, nc+1)):
+			if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and room[adj_r][adj_c] == 1:
+				new_room[adj_r][adj_c] = 3
+				times[adj_r][adj_c] = t + 1
+				result.append((adj_r, adj_c))
+		return result, new_room, times
+
+	def check_positionX (room, nc, nr, result, new_room, times, t):
+		for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1)):
+			if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and (room[adj_r][adj_c] == 1 or room[adj_r][adj_c] == 0) :
+				new_room[adj_r][adj_c] = 3
+				if room[adj_r][adj_c] == 0:
+					times[adj_r][adj_c] = t + 1
+				result.append((adj_r, adj_c))
+		return result, new_room, times
+
+	def first_get_all_edge_source(room, times, t, check_position = check_position):
+		new_room = room
+		result = []
+		for nr, r in enumerate(room):
+			for nc, c in enumerate(r):
+				if c == 3:
+					result, new_room, times = check_position (room, nc, nr, result, new_room, times, t)
+					return result, new_room, times
+
+
+	def step_once (room, to_check, times, t, check_position = check_position):
+		new_to_check = []
+		for nr, nc  in to_check:
+			new_to_check, new_room, times = check_position (room, nc, nr, new_to_check, new_room, times, t)
+		return new_to_check, new_room, times
+
+
+
+	def check_room(room, check_position_funct):
+		times = [[0] * len(room[0]) ] * len(room)
+		t = 0
+
+		to_check, new_room = first_get_all_edge_source(room, times, t, check_position_funct)
+
+		while to_check != []:
+			new_to_check, new_room, times =  step_once(room, to_check, times, t, check_position_funct)
+			t += 1
+
+		return new_room, times
+
+	def get_interest_time (times, nr, nc):
+		result = times[nr][nc]
+
+		if result == 0:
+			return -1
+		return result
+
+	def get_maxi_time (times, final_room):
+		maxi = 0
+		for row in final_room:
+			if 1 in row:
+				return -1
+
+		for row in times:
+			maxi = max(maxi, max(row))
+
+		return maxi
+
 
 	logging.info("-------STARTING APP-------")
 	data = request.get_json()
