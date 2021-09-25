@@ -49,7 +49,7 @@ def evaluate():
 	def step_once (room, to_check, new_room, times, t, check_position = check_position):
 		new_to_check = []
 		for nr, nc  in to_check:
-			new_to_check, new_room, times = check_position (room, nc, nr, new_to_check, new_room, times, t)
+			to_check, new_room, times =  step_once(room, to_check, new_room, times, t, check_position_funct)
 		return new_to_check, new_room, times
 
 
