@@ -92,7 +92,6 @@ def evaluate():
 	result = []
 
 	for case in data:
-		logging.info("STARTING ON CASE: " + case)
 		room_num = case.get("room")
 		room = case.get("grid")
 		interest = case.get("interestedIndividuals")
