@@ -8,7 +8,7 @@ from codeitsuisse import app
 logger = logging.getLogger(__name__)
 
 @app.route('/parasite', methods=['POST'])
-def evaluate():
+def EValuate():
 
 	import copy
 
