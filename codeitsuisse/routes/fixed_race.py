@@ -44,7 +44,7 @@ def minutely_req ():
 def evaluate():
 	global counting
 
-	result = minutely_req(counting)
+	result = minutely_req()
 
 	
 	for res in result[:9]:
