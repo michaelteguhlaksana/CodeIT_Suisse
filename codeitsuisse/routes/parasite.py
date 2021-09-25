@@ -85,16 +85,17 @@ def get_maxi_time (times, final_room):
 
 
 
-
-
 @app.route('/parasite', methods=['POST'])
 def evaluate():
+
+	logging.info("-------STARTING APP-------")
 	data = request.get_json()
 	logging.info("data sent for evaluation {}".format(data))
 
 	result = []
 
 	for case in data:
+		logging.info("STARTING ON CASE: " + case)
 		room_num = case.get("room")
 		room = case.get("grid")
 		interest = case.get("interestedIndividuals")
