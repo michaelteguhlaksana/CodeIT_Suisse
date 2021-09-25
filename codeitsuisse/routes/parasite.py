@@ -58,7 +58,7 @@ def evaluate():
 		times = [[0] * len(room[0]) ] * len(room)
 		t = 0
 
-		to_check, new_room = first_get_all_edge_source(room, times, t, check_position_funct)
+		to_check, new_room, times = first_get_all_edge_source(room, times, t, check_position_funct)
 
 		while to_check != []:
 			new_to_check, new_room, times =  step_once(room, to_check, times, t, check_position_funct)
