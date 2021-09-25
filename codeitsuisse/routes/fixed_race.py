@@ -51,7 +51,7 @@ def evaluate():
 
 	
 	for res in result[:9]:
-	results  = results + res + ','
+		results  = results + res + ','
 
 	results = results + result[9]
 
