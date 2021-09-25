@@ -8,6 +8,7 @@ from codeitsuisse import app
 logger = logging.getLogger(__name__)
 
 #Edit starts
+from datetime import datetime
 
 def counter(racers, counting):
 	logging.info("Counting...")
@@ -45,14 +46,19 @@ def minutely_req ():
 def evaluate():
 	global counting
 
-	result = minutely_req()
-	results = ""
+	while check_start:
+		pass
 
+	now_hour = datetime.today().hour
+
+	while datetime.today().hour <= now_hour:
+		result = minutely_req()
+		results = ""
 	
-	for res in result[:9]:
-		results  = results + res + ','
+		for res in result[:9]:
+			results  = results + res + ','
 
-	results = results + result[9]
+		results = results + result[9]
 
 	return results
 
