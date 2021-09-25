@@ -8,9 +8,6 @@ from codeitsuisse import app
 logger = logging.getLogger(__name__)
 
 #Edit starts
-from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime
-import atexit
 
 def counter(racers, counting):
 	logging.info("Counting...")
@@ -57,20 +54,6 @@ def evaluate():
 
 	return results
 
-
-sched = BackgroundScheduler(daemon=True)
-sched.add_job(evaluate,'interval',seconds=60)
-
-while check_start():
-	pass
-
-sched.start()
-
-
-atexit.register(lambda: sched.shutdown(wait=False))
-
-
-	
 
 
 
