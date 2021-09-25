@@ -36,7 +36,8 @@ def minutely_req ():
 	counter(racers, counting)
 
 	counting = {k: v for k, v in sorted(counting.items(), key=lambda item: item[1])}
-	result.append(counting.keys()[:10])
+	for key in counting.keys():
+		result.append(key)
 	return result
 
 
