@@ -7,12 +7,8 @@ from codeitsuisse import app
 
 logger = logging.getLogger(__name__)
 
-
-
-
 @app.route('/parasite', methods=['POST'])
 def evaluate():
-	x_counter = 0
 
 	def check_position (room, nc, nr, result, new_room, times, t):
 		for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1)):
