@@ -10,58 +10,63 @@ logger = logging.getLogger(__name__)
 @app.route('/parasite', methods=['POST'])
 def evaluate():
 
-	def check_position (room, nc, nr, result, new_room, times, t):
+	import copy
+
+	def check_position (room, nc, nr, result, new_room, times, t, seen):
 		for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1)):
-			if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and room[adj_r][adj_c] == 1:
+			if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and room[adj_r][adj_c] == 1 and (adj_r, adj_c) not in seen:
 				new_room[adj_r][adj_c] = 3
-				times[adj_r][adj_c] = t + 1
+				times[adj_r][adj_c] = t 
 				result.append((adj_r, adj_c))
-		return result, new_room, times
+				seen.append((adj_r, adj_c))
+		return result, new_room, times, seen
 
 
-	def check_positionB (room, nc, nr, result, new_room, times, t):
-		for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1), (nr-1, nc-1), (nr+1, nc-1), (nr+1, nc+1), (nr-1, nc+1)):
-			if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and room[adj_r][adj_c] == 1:
+	def check_positionB (room, nc, nr, result, new_room, times, t, seen ):
+		for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1), (nr-1, nc-1), (nr+1, nc-1), (nr+1, nc+1), (nr-1, nc+1)) :
+			if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and room[adj_r][adj_c] == 1 and (adj_r, adj_c) not in seen:
 				new_room[adj_r][adj_c] = 3
-				times[adj_r][adj_c] = t + 1
+				times[adj_r][adj_c] = t
 				result.append((adj_r, adj_c))
-		return result, new_room, times
+				seen.append((adj_r, adj_c))
+		return result, new_room, times, seen 
 
-	def check_positionX (room, nc, nr, result, new_room, times, t):
+	def check_positionX (room, nc, nr, result, new_room, times, t, seen):
 		for adj_r, adj_c in ((nr-1, nc), (nr+1, nc), (nr, nc-1), (nr, nc+1)):
-			if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and (room[adj_r][adj_c] == 1 or room[adj_r][adj_c] == 0) :
+			if (0 <= adj_r < len(room) and 0 <= adj_c < len(room[0])) and (room[adj_r][adj_c] == 1 or room[adj_r][adj_c] == 0) and (adj_r, adj_c) not in seen:
 				new_room[adj_r][adj_c] = 3
 				if room[adj_r][adj_c] == 0:
-					times[adj_r][adj_c] = t + 1
+					times[adj_r][adj_c] = t
 				result.append((adj_r, adj_c))
-		return result, new_room, times
+				seen.append((adj_r, adj_c))
+		return result, new_room, times, seen
 
-	def first_get_all_edge_source(room, times, t, check_position = check_position):
+	def first_get_all_edge_source(room, times, t, seen, check_position = check_position):
 		new_room = room
 		result = []
 		for nr, r in enumerate(room):
 			for nc, c in enumerate(r):
 				if c == 3:
-					result, new_room, times = check_position (room, nc, nr, result, new_room, times, t)
-					return result, new_room, times
+					seen.append((nr,nc))
+					result, new_room, times, seen = check_position (room, nc, nr, result, new_room, times, t, seen)
+					return result, new_room, times, seen
 
 
-	def step_once (room, to_check, new_room, times, t, check_position = check_position):
+	def step_once (room, to_check, new_room, times, t, seen, check_position = check_position):
 		new_to_check = []
 		for nr, nc  in to_check:
-			to_check, new_room, times =  step_once(room, to_check, new_room, times, t, check_position_funct)
-		return new_to_check, new_room, times
+			new_to_check, new_room, times, seen = check_position (room, nc, nr, new_to_check, new_room, times, t, seen)
+		return new_to_check, new_room, times, seen
 
 
 
 	def check_room(room, check_position_funct):
 		times = [[0] * len(room[0]) ] * len(room)
-		t = 0
-
-		to_check, new_room, times = first_get_all_edge_source(room, times, t, check_position_funct)
-
+		t = 1
+		seen = []
+		to_check, new_room, times, seen = first_get_all_edge_source(room, times, t, seen, check_position_funct)
 		while to_check != []:
-			new_to_check, new_room, times =  step_once(room, to_check, new_room, times, t, check_position_funct)
+			to_check, new_room, times, seen =  step_once(room, to_check, new_room, times, t, seen, check_position_funct)
 			t += 1
 
 		return new_room, times
@@ -96,11 +101,15 @@ def evaluate():
 		room = case.get("grid")
 		interest = case.get("interestedIndividuals")
 
-		A_room, A_times = check_room(room = room, check_position_funct = check_position)
+		roomA = copy.deepcopy(room)
+		roomB = copy.deepcopy(room)
+		roomX = copy.deepcopy(room)
+
+		A_room, A_times = check_room(room = roomA, check_position_funct = check_position)
 		logging.info("FINISH WORKING ON A")
-		B_room, B_times = check_room(room = room, check_position_funct = check_positionB)
+		B_room, B_times = check_room(room = roomB, check_position_funct = check_positionB)
 		logging.info("FINISH WORKING ON B")
-		X_room, X_times = check_room(room = room, check_position_funct = check_positionX)
+		X_room, X_times = check_room(room = roomX, check_position_funct = check_positionX)
 		logging.info("FINISH WORKING ON X")
 
 		p1 = {}
