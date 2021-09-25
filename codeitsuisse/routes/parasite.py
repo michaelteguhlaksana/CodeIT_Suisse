@@ -46,7 +46,7 @@ def evaluate():
 					return result, new_room, times
 
 
-	def step_once (room, to_check, times, t, check_position = check_position):
+	def step_once (room, to_check, new_room, times, t, check_position = check_position):
 		new_to_check = []
 		for nr, nc  in to_check:
 			new_to_check, new_room, times = check_position (room, nc, nr, new_to_check, new_room, times, t)
@@ -61,7 +61,7 @@ def evaluate():
 		to_check, new_room, times = first_get_all_edge_source(room, times, t, check_position_funct)
 
 		while to_check != []:
-			new_to_check, new_room, times =  step_once(room, to_check, times, t, check_position_funct)
+			new_to_check, new_room, times =  step_once(room, to_check, new_room, times, t, check_position_funct)
 			t += 1
 
 		return new_room, times
